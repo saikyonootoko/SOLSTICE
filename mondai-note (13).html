@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>スキャン式ノート ― 問題・解答デジタルノート</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" onerror="window.__katexCssFailed=true" onload="window.__katexCssLoaded=true">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap');
+
+:root{
+  --paper:#FBFAF5;
+  --paper-alt:#F3EEE0;
+  --ink:#24211C;
+  --ink-soft:#6B6656;
+  --navy:#1D3461;
+  --navy-deep:#12213C;
+  --vermilion:#C1440E;
+  --gold:#A8842F;
+  --line:#DDD6C4;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:#E9E4D6;
+  color:var(--ink);
+  font-family:'Shippori Mincho',serif;
+  line-height:1.8;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,button,.label,.badge,.unit-tag,.ribbon,.final-label,.chip,.notice,.field-label,.approach-label,.tag-chip,select,input{
+  font-family:'Zen Kaku Gothic New',sans-serif;
+}
+.katex{font-size:1.05em;line-height:1.2;white-space:normal;}
+.katex, .katex *{box-sizing:content-box;}
+.katex-display{margin:0.6em 0;line-height:1.3;overflow-x:auto;overflow-y:hidden;padding:2px 0;}
+.katex-display{overflow-x:auto;overflow-y:hidden;max-width:100%;padding:2px 0;}
+
+/* ---- notice bar ---- */
+.notice{
+  background:var(--navy-deep);
+  color:#F1E9D2;
+  font-size:12.5px;
+  padding:9px 16px;
+  text-align:center;
+  letter-spacing:.02em;
+}
+.notice b{color:#FFD98A;}
+
+/* ---- header ---- */
+header.app-head{
+  background:var(--navy);
+  color:var(--paper);
+  padding:22px 20px 20px;
+  position:relative;
+}
+.app-head .inner{
+  max-width:760px;
+  margin:0 auto;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+}
+.app-title{
+  font-weight:900;
+  font-size:24px;
+  letter-spacing:.04em;
+  margin:0;
+}
+.app-title small{
+  display:block;
+  font-family:'Shippori Mincho',serif;
+  font-weight:500;
+  font-size:12px;
+  color:#C9D2E6;
+  letter-spacing:.14em;
+  margin-top:4px;
+}
+.build-tag{
+  font-family:'Zen Kaku Gothic New',sans-serif;
+  font-size:10px;
+  color:#6B7EA3;
+  margin-top:6px;
+  letter-spacing:.05em;
+}
+.gear-btn{
+  background:transparent;
+  border:1px solid rgba(255,255,255,.35);
+  color:var(--paper);
+  width:38px;height:38px;
+  border-radius:3px;
+  font-size:17px;
+  cursor:pointer;
+  flex:none;
+}
+.gear-btn:hover{background:rgba(255,255,255,.12);}
+
+/* ---- settings drawer ---- */
+.settings{
+  max-width:760px;margin:0 auto;
+  background:var(--navy-deep);
+  color:#E7E1CC;
+  overflow:hidden;
+  max-height:0;
+  transition:max-height .25s ease;
+}
+.settings.open{max-height:680px;overflow-y:auto;}
+.settings .inner{padding:16px 20px 20px;}
+.settings label{display:block;font-size:12px;letter-spacing:.06em;margin-bottom:6px;color:#B9C3DA;}
+.settings input[type=text],.settings input[type=password]{
+  width:100%;padding:9px 10px;border-radius:3px;border:1px solid #33456B;
+  background:#0F1C33;color:#F1E9D2;font-family:monospace;font-size:13px;
+}
+.settings .row{display:flex;gap:10px;margin-top:10px;align-items:center;}
+.settings .save-btn{
+  background:var(--gold);color:#1B1607;border:none;padding:9px 16px;
+  border-radius:3px;font-weight:700;font-size:13px;cursor:pointer;
+}
+.settings .hint{font-size:11.5px;color:#8FA0C2;margin-top:8px;line-height:1.6;}
+.settings .hint a{color:#FFD98A;}
+.model-limits{margin-top:16px;border-top:1px solid #2A3B5C;padding-top:12px;}
+.model-limit-row{display:flex;align-items:center;gap:8px;font-size:12px;color:#DCE3F0;margin-bottom:8px;}
+.model-limit-label{flex:1;}
+.model-limit-usage{color:#8FA0C2;white-space:nowrap;}
+.model-limit-input{width:56px;padding:4px 6px;border-radius:3px;border:1px solid #33456B;background:#0F1C33;color:#F1E9D2;font-size:12px;}
+.model-select{width:100%;padding:9px 10px;border-radius:3px;border:1px solid #33456B;background:#0F1C33;color:#F1E9D2;font-size:13px;font-family:'Zen Kaku Gothic New',sans-serif;}
+.toggle-row{display:flex;align-items:center;gap:8px;font-size:13px;color:#E7E1CC;cursor:pointer;}
+.toggle-row input{width:16px;height:16px;accent-color:var(--gold);cursor:pointer;}
+
+/* ---- container ---- */
+.container{max-width:760px;margin:0 auto;padding:22px 20px 60px;}
+
+/* ---- upload panel ---- */
+.upload-panel{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:3px;
+  padding:20px;
+  margin-bottom:26px;
+  box-shadow:0 1px 0 rgba(0,0,0,.03);
+}
+.upload-panel h2{
+  margin:0 0 14px;font-size:14px;color:var(--navy);letter-spacing:.06em;
+  display:flex;align-items:center;gap:8px;
+}
+.upload-panel h2::before{content:"";width:4px;height:14px;background:var(--vermilion);display:inline-block;}
+.slots{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media (max-width:520px){.slots{grid-template-columns:1fr;}}
+.slot{
+  border:1.5px dashed var(--line);
+  border-radius:3px;
+  padding:14px;
+  text-align:center;
+  background:#fff;
+  min-height:160px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  position:relative;
+}
+.slot .field-label{font-size:12px;color:var(--ink-soft);letter-spacing:.04em;}
+.slot .req{color:var(--vermilion);}
+.slot img.preview{max-width:100%;max-height:120px;border-radius:2px;}
+.slot-btn-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.pick-btn{
+  background:var(--navy);color:#fff;border:none;padding:8px 14px;
+  border-radius:3px;font-size:12.5px;cursor:pointer;font-weight:700;letter-spacing:.03em;
+}
+.pick-btn.secondary{background:#fff;color:var(--navy);border:1px solid var(--navy);}
+.slot input[type=file]{display:none;}
+.slot .clear-btn{
+  position:absolute;top:6px;right:6px;background:rgba(0,0,0,.55);color:#fff;
+  border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;
+}
+
+.analyze-row{margin-top:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.analyze-btn{
+  background:var(--vermilion);color:#fff;border:none;
+  padding:12px 22px;border-radius:3px;font-weight:900;font-size:14px;
+  letter-spacing:.05em;cursor:pointer;flex:none;
+}
+.analyze-btn:disabled{opacity:.5;cursor:default;}
+.analyze-status{font-size:12.5px;color:var(--ink-soft);}
+.error-box{
+  margin-top:12px;background:#FBEAE3;border:1px solid var(--vermilion);color:#7A2A0E;
+  padding:10px 12px;border-radius:3px;font-size:12.5px;line-height:1.7;
+}
+.hint-note{font-size:11.5px;color:var(--ink-soft);margin-top:12px;line-height:1.7;}
+
+/* ---- bulk panel ---- */
+.bulk-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.bulk-grid{display:flex;flex-wrap:wrap;gap:10px;}
+.bulk-thumb{position:relative;width:76px;height:76px;border-radius:3px;overflow:hidden;border:1px solid var(--line);}
+.bulk-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.bulk-thumb .remove-btn{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;}
+
+/* ---- notebook section ---- */
+.notebook-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+.notebook-head h2{font-size:15px;color:var(--navy);letter-spacing:.05em;margin:0;}
+.notebook-head-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.pdf-btn{background:var(--navy);color:#fff;border-color:var(--navy);}
+.select-checkbox{width:17px;height:17px;cursor:pointer;accent-color:var(--navy);margin-right:2px;}
+.export-btn{
+  background:none;border:1px solid var(--navy);color:var(--navy);
+  padding:7px 12px;border-radius:3px;font-size:12px;cursor:pointer;font-weight:700;
+}
+.toolbar{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
+.search-input{flex:1;min-width:180px;padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:13px;background:#fff;}
+.sort-select{padding:8px 10px;border:1px solid var(--line);border-radius:3px;font-size:13px;background:#fff;}
+.tag-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.tag-chip{border:1px solid var(--line);background:#fff;color:var(--ink-soft);font-size:11.5px;padding:4px 10px;border-radius:12px;cursor:pointer;}
+.tag-chip.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+.tag-chip.small{cursor:default;font-size:11px;padding:2px 8px;}
+.tags-row{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 12px;}
+.empty-state{
+  text-align:center;color:var(--ink-soft);font-size:13px;padding:40px 10px;
+  border:1px dashed var(--line);border-radius:3px;background:rgba(255,255,255,.4);
+}
+
+/* ---- entry card ---- */
+.entry-card{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:3px;
+  padding:20px 20px 22px;
+  margin-bottom:24px;
+  box-shadow:0 1px 0 rgba(0,0,0,.03);
+}
+.entry-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;row-gap:6px;}
+.badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:42px;height:34px;padding:0 10px;
+  background:var(--navy);color:#fff;font-weight:900;font-size:14px;border-radius:3px;
+  letter-spacing:.02em;
+}
+.unit-tag{
+  border:1px solid var(--gold);color:var(--gold);font-size:11.5px;
+  padding:4px 9px;border-radius:12px;font-weight:700;letter-spacing:.03em;
+}
+.entry-actions{margin-left:auto;display:flex;gap:6px;}
+.icon-btn{
+  background:none;border:1px solid var(--line);color:var(--ink-soft);
+  width:30px;height:30px;border-radius:3px;cursor:pointer;font-size:13px;
+}
+.icon-btn:hover{border-color:var(--navy);color:var(--navy);}
+
+.problem-body{
+  font-size:15.5px;white-space:pre-wrap;line-height:1.9;color:var(--ink);
+  padding-bottom:4px;overflow-x:auto;word-break:break-word;
+}
+
+.answer-panel{
+  position:relative;margin-top:30px;padding:26px 18px 18px;
+  background:var(--paper-alt);border:1px solid var(--line);border-radius:2px;
+}
+.ribbon{
+  position:absolute;top:-13px;left:18px;
+  background:var(--navy);color:#fff;font-weight:700;font-size:12px;
+  letter-spacing:.12em;padding:6px 16px 6px 12px;
+  clip-path:polygon(0 0,100% 0,90% 50%,100% 100%,0 100%);
+}
+.approach-box{background:#fff;border-left:4px solid var(--gold);padding:9px 12px;margin-bottom:14px;border-radius:2px;}
+.figure-box{background:#fff;border:1px solid var(--line);border-radius:2px;padding:10px;margin:12px 0;text-align:center;}
+.figure-box svg{max-width:100%;height:auto;}
+.figure-label{font-size:11px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:6px;font-weight:700;text-align:left;}
+.approach-label{display:inline-block;background:var(--gold);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:2px;margin-bottom:6px;letter-spacing:.05em;}
+.approach-body{font-size:13.5px;color:var(--ink);line-height:1.8;white-space:pre-wrap;overflow-x:auto;word-break:break-word;}
+.answer-sub-label{font-size:11px;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:6px;font-weight:700;}
+.answer-body{font-size:14.5px;white-space:pre-wrap;line-height:1.9;color:var(--ink);overflow-x:auto;word-break:break-word;}
+.final-answer{
+  margin-top:14px;background:#fff;border-left:4px solid var(--vermilion);
+  padding:9px 14px;font-weight:700;font-size:14.5px;color:var(--navy-deep);
+}
+.final-label{
+  background:var(--vermilion);color:#fff;font-size:11px;font-weight:700;
+  padding:2px 7px;border-radius:2px;margin-right:8px;letter-spacing:.05em;
+}
+.no-answer{
+  margin-top:20px;font-size:12.5px;color:var(--ink-soft);
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.add-answer-btn{
+  background:#fff;border:1px solid var(--navy);color:var(--navy);
+  padding:6px 12px;border-radius:3px;font-size:12px;cursor:pointer;font-weight:700;
+}
+.entry-meta{margin-top:14px;font-size:11px;color:#A39D89;text-align:right;}
+
+.entry-card.collapsed .problem-body,
+.entry-card.collapsed .answer-panel,
+.entry-card.collapsed .no-answer,
+.entry-card.collapsed .entry-meta{display:none;}
+
+/* ---- edit form ---- */
+.edit-form{display:flex;flex-direction:column;gap:2px;}
+.edit-form .field-label{font-size:11px;color:var(--ink-soft);margin-top:8px;}
+.edit-input,.edit-textarea{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:3px;font-family:'Shippori Mincho',serif;font-size:13.5px;background:#fff;color:var(--ink);}
+.edit-textarea{resize:vertical;font-family:'Shippori Mincho',serif;}
+.edit-actions{display:flex;gap:10px;margin-top:14px;}
+
+/* loading overlay */
+.loading-overlay{
+  position:fixed;inset:0;background:rgba(18,33,60,.55);
+  display:none;align-items:center;justify-content:center;z-index:50;
+}
+.loading-overlay.show{display:flex;}
+.loading-box{
+  background:var(--paper);padding:22px 30px;border-radius:4px;text-align:center;
+  font-size:13px;color:var(--navy);font-family:'Zen Kaku Gothic New',sans-serif;max-width:80vw;
+}
+.spinner{
+  width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--vermilion);
+  border-radius:50%;margin:0 auto 10px;animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ---- camera modal ---- */
+.camera-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:70;flex-direction:column;}
+.camera-modal.show{display:flex;}
+.camera-inner{max-width:92vw;text-align:center;}
+.camera-inner video{max-width:92vw;max-height:68vh;border-radius:4px;background:#000;}
+.camera-controls{margin-top:14px;display:flex;gap:12px;justify-content:center;}
+.camera-hint{font-size:12px;color:#ddd;margin-top:8px;}
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+
+/* ---- print / PDF ---- */
+#printArea{display:none;}
+.print-title-block{margin-bottom:26px;padding-bottom:14px;border-bottom:3px solid var(--navy);}
+.print-title{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:900;font-size:22px;color:var(--navy);letter-spacing:.04em;}
+.print-subtitle{font-family:'Zen Kaku Gothic New',sans-serif;font-size:11px;color:var(--ink-soft);margin-top:4px;}
+@media print{
+  body > *:not(#printArea){display:none !important;}
+  #printArea{display:block !important;background:#fff;}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  #printArea .entry-card{box-shadow:none;page-break-inside:avoid;break-inside:avoid;margin-bottom:16px;}
+  #printArea .ribbon{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @page{margin:16mm;}
+}
+
+</style>
+</head>
+<body>
+
+<div class="notice">このツールは <b>ダウンロードしたファイルをブラウザで直接開いた状態</b> でのみ Gemini と通信できます。Claude のプレビュー画面上では通信がブロックされます。</div>
+
+<header class="app-head">
+  <div class="inner">
+    <div>
+      <h1 class="app-title">スキャン式ノート<small>PROBLEM &amp; ANSWER SCANNER</small></h1>
+      <div class="build-tag">build 2026-08-17-c</div>
+    </div>
+    <button class="gear-btn" id="gearBtn" title="APIキー設定" aria-label="設定">⚙</button>
+  </div>
+</header>
+
+<div class="settings" id="settingsPanel">
+  <div class="inner">
+    <label for="apiKeyInput">Gemini APIキー</label>
+    <input type="password" id="apiKeyInput" placeholder="AIzaSy... を貼り付け" autocomplete="off">
+    <div class="row">
+      <button class="save-btn" id="saveKeyBtn">保存する</button>
+      <span id="keyStatus" style="font-size:12px;color:#8FA0C2;"></span>
+    </div>
+    <div class="hint">キーはこの端末のブラウザ内（localStorage）だけに保存され、Googleのサーバー以外には送信されません。</div>
+
+    <div class="model-limits">
+      <label class="toggle-row"><input type="checkbox" id="figuresToggle"> 図・グラフを自動生成する</label>
+      <div class="hint">オンにすると、座標平面のグラフや簡単な図形の再現を試みます（不安定な場合や、速度・安定性を優先したい場合はオフを推奨します）。オフの場合は文章と数式のみになりますが、解説文の中で図の内容はできるだけ言葉で説明されます。</div>
+    </div>
+
+    <div class="model-limits">
+      <label style="margin-bottom:8px;">使用モデル</label>
+      <select id="modelOverrideSelect" class="model-select"></select>
+      <div class="hint">「自動」では下の上限表に従って上から順に自動的に切り替わります。特定のモデルを選ぶと、そこから使い始めます（それでも上限超過や429エラー時は下の並び順で自動フォールバックします）。</div>
+    </div>
+
+    <div class="model-limits">
+      <label style="margin-bottom:8px;">モデルと1日の上限（自動切り替え用）</label>
+      <div id="modelLimits"></div>
+      <div class="row"><button class="save-btn" id="resetUsageBtn" style="background:#555;color:#fff;">今日の使用回数をリセット</button></div>
+      <div class="hint">上から順に試し、上限に達した（または429エラーが出た）場合は自動で次のモデルに切り替えます。実際の上限は変動するため、<a href="https://aistudio.google.com/rate-limit" target="_blank" rel="noopener">AI Studioのレート制限画面</a>で確認のうえ数値を調整してください（初期値は目安です）。</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <section class="upload-panel">
+    <h2>新しく読み取る</h2>
+    <div class="slots">
+      <div class="slot" id="slotProblem">
+        <span class="field-label">問題の写真 <span class="req">必須</span></span>
+        <img class="preview" id="previewProblem" style="display:none;">
+        <div class="slot-btn-row">
+          <button type="button" class="pick-btn" id="pickProblemBtn">写真を選ぶ</button>
+          <button type="button" class="pick-btn secondary" id="cameraProblemBtn">📷 撮影</button>
+        </div>
+        <input type="file" id="fileProblem" accept="image/*">
+        <button type="button" class="clear-btn" id="clearProblemBtn" style="display:none;">✕</button>
+      </div>
+      <div class="slot" id="slotAnswer">
+        <span class="field-label">解答の写真（別冊の場合のみ）</span>
+        <img class="preview" id="previewAnswer" style="display:none;">
+        <div class="slot-btn-row">
+          <button type="button" class="pick-btn secondary" id="pickAnswerBtn">写真を選ぶ</button>
+          <button type="button" class="pick-btn secondary" id="cameraAnswerBtn">📷 撮影</button>
+        </div>
+        <input type="file" id="fileAnswer" accept="image/*">
+        <button type="button" class="clear-btn" id="clearAnswerBtn" style="display:none;">✕</button>
+      </div>
+    </div>
+    <div class="analyze-row">
+      <button class="analyze-btn" id="analyzeBtn">解析してノートに追加</button>
+    </div>
+    <div class="error-box" id="errorBox" style="display:none;"></div>
+  </section>
+
+  <section class="upload-panel">
+    <h2>まとめて追加（複数枚）</h2>
+    <div class="bulk-controls">
+      <button type="button" class="pick-btn" id="bulkPickBtn">写真をまとめて選ぶ</button>
+      <input type="file" id="bulkFileInput" accept="image/*" multiple style="display:none;">
+      <button type="button" class="pick-btn secondary" id="bulkCameraBtn">📷 連続撮影で追加</button>
+    </div>
+    <div class="bulk-grid" id="bulkGrid"></div>
+    <div class="analyze-row">
+      <button class="analyze-btn" id="bulkAnalyzeBtn" disabled>まとめて解析する（<span id="bulkCount">0</span>枚）</button>
+      <span class="analyze-status" id="bulkStatus"></span>
+    </div>
+    <div class="hint-note">1枚に問題と解答が両方写っている前提のモードです。別冊の解答は上の「新しく読み取る」欄から個別に追加してください。RPM対策として5枚ごとに約1分の間隔を自動で空けます。</div>
+  </section>
+
+  <section class="notebook">
+    <div class="notebook-head">
+      <h2>ノート</h2>
+      <div class="notebook-head-actions">
+        <button class="export-btn" id="selectAllBtn">表示中をすべて選択</button>
+        <button class="export-btn pdf-btn" id="pdfBtn">全件をPDFにする（0件）</button>
+        <button class="export-btn" id="exportBtn">全件をMarkdownで書き出す</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <input type="text" id="searchInput" class="search-input" placeholder="キーワード検索（問題文・解答・単元・タグ）">
+      <select id="sortSelect" class="sort-select">
+        <option value="new">新しい順</option>
+        <option value="old">古い順</option>
+        <option value="unit">単元順</option>
+        <option value="tag">タグ順</option>
+      </select>
+      <button class="export-btn" id="collapseAllBtn">すべて折りたたむ</button>
+    </div>
+    <div class="tag-filter" id="tagFilterRow"></div>
+    <div id="entriesWrap"></div>
+    <div class="empty-state" id="emptyState">まだ何も読み取っていません。上の欄から問題の写真を追加してください。</div>
+  </section>
+
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-box"><div class="spinner"></div><div id="loadingText">Geminiに送信中…</div></div>
+</div>
+
+<div class="camera-modal" id="cameraModal">
+  <div class="camera-inner">
+    <video id="cameraVideo" autoplay playsinline muted></video>
+    <div class="camera-controls">
+      <button type="button" class="pick-btn" id="cameraCaptureBtn">📷 撮影</button>
+      <button type="button" class="pick-btn secondary" id="cameraCloseBtn">閉じる</button>
+    </div>
+    <div class="camera-hint" id="cameraHint"></div>
+  </div>
+</div>
+<canvas id="captureCanvas" style="display:none;"></canvas>
+<div id="printArea"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" onerror="window.__katexJsFailed=true"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onerror="window.__katexJsFailed=true"></script>
+<script>
+(function(){
+  "use strict";
+
+  var MODEL_CHAIN = [
+    { id:"gemini-3.5-flash",      label:"Gemini 3.5 Flash",      defaultRpd:20 },
+    { id:"gemini-3.5-flash-lite", label:"Gemini 3.5 Flash-Lite", defaultRpd:500 },
+    { id:"gemini-2.5-flash",      label:"Gemini 2.5 Flash",      defaultRpd:20 },
+    { id:"gemini-2.5-flash-lite", label:"Gemini 2.5 Flash-Lite", defaultRpd:20 }
+  ];
+
+  var LS_API = "mondai_note_api_key";
+  var LS_ENTRIES = "mondai_note_entries";
+  var LS_RPD_LIMITS = "mondai_note_rpd_limits";
+  var LS_RPD_USAGE = "mondai_note_rpd_usage";
+  var LS_MODEL_OVERRIDE = "mondai_note_model_override";
+  var LS_FIGURES_ENABLED = "mondai_note_figures_enabled";
+
+  var state = {
+    apiKey: localStorage.getItem(LS_API) || "",
+    entries: [],
+    pendingProblemFile: null,
+    pendingAnswerFile: null,
+    bulkQueue: [],
+    bulkProcessing: false,
+    collapsedIds: new Set(),
+    selectedIds: new Set(),
+    editingId: null,
+    filterQuery: "",
+    filterTags: new Set(),
+    sortMode: "new",
+    rpdLimits: {},
+    rpdUsage: {},
+    modelOverride: localStorage.getItem(LS_MODEL_OVERRIDE) || "auto",
+    figuresEnabled: localStorage.getItem(LS_FIGURES_ENABLED) === "1"
+  };
+
+  try {
+    var rawE = localStorage.getItem(LS_ENTRIES);
+    var parsedE = rawE ? JSON.parse(rawE) : [];
+    state.entries = parsedE.map(function(e){
+      var m = Object.assign({ approach:"", tags:[], figure_svg:"", graph:{present:false} }, e);
+      if(!m.figure_svg){ m.figure_svg = e.answer_figure_svg || e.problem_figure_svg || ""; }
+      if(!m.graph || !m.graph.present){
+        if(e.answer_graph && e.answer_graph.present) m.graph = e.answer_graph;
+        else if(e.problem_graph && e.problem_graph.present) m.graph = e.problem_graph;
+      }
+      return m;
+    });
+  } catch(e){ state.entries = []; }
+
+  try {
+    var rawL = localStorage.getItem(LS_RPD_LIMITS);
+    state.rpdLimits = rawL ? JSON.parse(rawL) : {};
+  } catch(e){ state.rpdLimits = {}; }
+
+  try {
+    var rawU = localStorage.getItem(LS_RPD_USAGE);
+    state.rpdUsage = rawU ? JSON.parse(rawU) : {};
+  } catch(e){ state.rpdUsage = {}; }
+
+  function saveEntries(){ localStorage.setItem(LS_ENTRIES, JSON.stringify(state.entries)); }
+
+  function isKatexReady(){
+    return !!window.renderMathInElement && !window.__katexJsFailed && !window.__katexCssFailed;
+  }
+
+  function escapeHtml(str){
+    var d = document.createElement("div");
+    d.textContent = str == null ? "" : String(str);
+    return d.innerHTML;
+  }
+  function escapeAttr(str){
+    return escapeHtml(str).replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+  function multiline(str){
+    return escapeHtml(str).replace(/\n/g, "<br>");
+  }
+
+  var SVG_ALLOWED_TAGS = ["svg","g","path","circle","rect","line","polyline","polygon","ellipse","text","tspan","defs","marker","clippath","lineargradient","radialgradient","stop","title","desc"];
+
+  function sanitizeSvg(svgStr){
+    if(!svgStr || typeof svgStr !== "string") return null;
+    var trimmed = svgStr.trim();
+    if(!/^<svg[\s>]/i.test(trimmed)) return null;
+    try{
+      var doc = new DOMParser().parseFromString(trimmed, "image/svg+xml");
+      if(doc.querySelector("parsererror")) return null;
+      var root = doc.documentElement;
+      if(!root || root.tagName.toLowerCase() !== "svg") return null;
+      Array.prototype.slice.call(root.attributes).forEach(function(attr){
+        var name = attr.name.toLowerCase();
+        if(name.indexOf("on") === 0 || name === "href" || name === "xlink:href"){
+          root.removeAttribute(attr.name);
+        }
+      });
+      (function clean(node){
+        Array.prototype.slice.call(node.children).forEach(function(child){
+          var tag = child.tagName.toLowerCase();
+          if(SVG_ALLOWED_TAGS.indexOf(tag) === -1){
+            node.removeChild(child);
+            return;
+          }
+          Array.prototype.slice.call(child.attributes).forEach(function(attr){
+            var name = attr.name.toLowerCase();
+            if(name.indexOf("on") === 0 || name === "href" || name === "xlink:href"){
+              child.removeAttribute(attr.name);
+            }
+          });
+          clean(child);
+        });
+      })(root);
+      if(!root.getAttribute("viewBox") && root.getAttribute("width") && root.getAttribute("height")){
+        root.setAttribute("viewBox", "0 0 " + parseFloat(root.getAttribute("width")) + " " + parseFloat(root.getAttribute("height")));
+      }
+      root.removeAttribute("width");
+      root.removeAttribute("height");
+      return new XMLSerializer().serializeToString(root);
+    }catch(e){ return null; }
+  }
+
+  function buildFigureBoxHtml(svgRaw, label){
+    var clean = sanitizeSvg(svgRaw);
+    if(!clean) return "";
+    return '<div class="figure-box"><div class="figure-label">' + escapeHtml(label) + '</div>' + clean + '</div>';
+  }
+
+  /* ---- structured graph rendering (safer & more accurate than free-form SVG for
+     function graphs / coordinate figures). Gemini supplies numbers + simple math
+     expressions; we do the actual drawing ourselves. ---- */
+  var GRAPH_FN_NAMES = ["sin","cos","tan","asin","acos","atan","sqrt","abs","log","exp"];
+
+  function compileExpr(expr){
+    if(typeof expr !== "string") return null;
+    var cleaned = expr.trim();
+    if(!cleaned) return null;
+    var fnPattern = GRAPH_FN_NAMES.join("|");
+    var stripped = cleaned
+      .replace(new RegExp("\\b(" + fnPattern + ")\\b", "gi"), "")
+      .replace(/\bpi\b/gi, "")
+      .replace(/\be\b/g, "");
+    if(/[^0-9x.+\-*/^(),\s]/i.test(stripped)) return null;
+    var jsExpr = cleaned
+      .replace(/\^/g, "**")
+      .replace(new RegExp("\\b(" + fnPattern + ")\\(", "gi"), function(m, name){ return "Math." + name.toLowerCase() + "("; })
+      .replace(/\bpi\b/gi, "Math.PI")
+      .replace(/\be\b/g, "Math.E")
+      .replace(/(\d)(x)/gi, "$1*$2")
+      .replace(/(\d)(\()/g, "$1*$2")
+      .replace(/(\))(\d|x|\()/gi, "$1*$2")
+      .replace(/(x)(\()/gi, "$1*$2");
+    try{
+      var fn = new Function("x", "\"use strict\"; return (" + jsExpr + ");");
+      var t = fn(1);
+      if(typeof t !== "number") return null;
+      return fn;
+    }catch(e){ return null; }
+  }
+
+  function numOr(v, fallback){
+    var n = Number(v);
+    return isFinite(n) ? n : fallback;
+  }
+  function safeColor(c, fallback){
+    return (typeof c === "string" && /^#[0-9a-f]{3,8}$/i.test(c.trim())) ? c.trim() : fallback;
+  }
+  function r1(n){ return Math.round(n*10)/10; }
+
+  function renderGraphSvg(graph){
+    if(!graph || !graph.present) return "";
+    var W = 440, H = 340, padL = 46, padR = 20, padT = 20, padB = 40;
+    var xMin = numOr(graph.x_min, -1), xMax = numOr(graph.x_max, 5);
+    var yMin = numOr(graph.y_min, -1), yMax = numOr(graph.y_max, 5);
+    if(xMax <= xMin) xMax = xMin + 1;
+    if(yMax <= yMin) yMax = yMin + 1;
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+    function px(x){ return r1(padL + (x - xMin) / (xMax - xMin) * plotW); }
+    function py(y){ return r1(padT + plotH - (y - yMin) / (yMax - yMin) * plotH); }
+    var x0 = px(Math.min(Math.max(0, xMin), xMax));
+    var y0 = py(Math.min(Math.max(0, yMin), yMax));
+
+    var parts = [];
+    parts.push('<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">');
+    parts.push('<line x1="' + px(xMin) + '" y1="' + y0 + '" x2="' + px(xMax) + '" y2="' + y0 + '" stroke="#333" stroke-width="1.2"/>');
+    parts.push('<line x1="' + x0 + '" y1="' + py(yMax) + '" x2="' + x0 + '" y2="' + py(yMin) + '" stroke="#333" stroke-width="1.2"/>');
+    parts.push('<text x="' + (px(xMax)-8) + '" y="' + (y0-6) + '" font-size="13" fill="#333">x</text>');
+    parts.push('<text x="' + (x0+6) + '" y="' + (py(yMax)+12) + '" font-size="13" fill="#333">y</text>');
+
+    (graph.shade||[]).slice(0,3).forEach(function(sh){
+      var fu = compileExpr(sh.upper_expr), fl = compileExpr(sh.lower_expr);
+      if(!fu || !fl) return;
+      var x1 = numOr(sh.x1, xMin), x2 = numOr(sh.x2, xMax);
+      if(x2 <= x1) return;
+      var N = 40, top = [], bot = [];
+      for(var i=0;i<=N;i++){
+        var xx = x1 + (x2-x1)*i/N;
+        var yu, yl;
+        try{ yu = fu(xx); }catch(e){ yu = NaN; }
+        try{ yl = fl(xx); }catch(e){ yl = NaN; }
+        if(isFinite(yu)) top.push(px(xx)+","+py(yu));
+        if(isFinite(yl)) bot.push(px(xx)+","+py(yl));
+      }
+      if(top.length < 2 || bot.length < 2) return;
+      var d = "M " + top.join(" L ") + " L " + bot.slice().reverse().join(" L ") + " Z";
+      parts.push('<path d="' + d + '" fill="' + safeColor(sh.color,"#C1440E") + '" fill-opacity="0.16" stroke="none"/>');
+    });
+
+    var CURVE_PALETTE = ["#1D3461","#C1440E","#A8842F","#2F6F4F","#6B3FA0"];
+    (graph.curves||[]).slice(0,5).forEach(function(c, idx){
+      var f = compileExpr(c.expr);
+      if(!f) return;
+      var N = 140, segs = [], cur = [];
+      var yPad = (yMax-yMin);
+      for(var i=0;i<=N;i++){
+        var xx = xMin + (xMax-xMin)*i/N;
+        var yy; try{ yy = f(xx); }catch(e){ yy = NaN; }
+        if(isFinite(yy) && yy >= yMin-yPad && yy <= yMax+yPad){
+          cur.push(px(xx)+","+py(Math.max(yMin-yPad, Math.min(yMax+yPad, yy))));
+        } else {
+          if(cur.length>1) segs.push(cur);
+          cur = [];
+        }
+      }
+      if(cur.length>1) segs.push(cur);
+      var color = safeColor(c.color, CURVE_PALETTE[idx % CURVE_PALETTE.length]);
+      segs.forEach(function(s){
+        parts.push('<path d="M ' + s.join(" L ") + '" fill="none" stroke="' + color + '" stroke-width="2"/>');
+      });
+      if(c.label){
+        var lx = xMax - (xMax-xMin)*0.1, ly;
+        try{ ly = f(lx); }catch(e){ ly = null; }
+        if(ly!=null && isFinite(ly) && ly>=yMin && ly<=yMax){
+          parts.push('<text x="' + (px(lx)+4) + '" y="' + (py(ly)-6) + '" font-size="12" fill="' + color + '">' + escapeHtml(c.label) + '</text>');
+        }
+      }
+    });
+
+    (graph.segments||[]).slice(0,8).forEach(function(sg){
+      var x1=numOr(sg.x1,null), y1=numOr(sg.y1,null), x2=numOr(sg.x2,null), y2=numOr(sg.y2,null);
+      if(x1==null||y1==null||x2==null||y2==null) return;
+      var color = safeColor(sg.color, "#555555");
+      var dash = sg.dashed ? ' stroke-dasharray="4,3"' : '';
+      parts.push('<line x1="'+px(x1)+'" y1="'+py(y1)+'" x2="'+px(x2)+'" y2="'+py(y2)+'" stroke="'+color+'" stroke-width="1.4"'+dash+'/>');
+      if(sg.label){
+        var mx=(px(x1)+px(x2))/2, my=(py(y1)+py(y2))/2;
+        parts.push('<text x="'+(mx+4)+'" y="'+(my-4)+'" font-size="11" fill="'+color+'">'+escapeHtml(sg.label)+'</text>');
+      }
+    });
+
+    (graph.points||[]).slice(0,10).forEach(function(p){
+      var x=numOr(p.x,null), y=numOr(p.y,null);
+      if(x==null||y==null) return;
+      var color = safeColor(p.color, "#24211C");
+      if(p.guides){
+        parts.push('<line x1="'+px(x)+'" y1="'+py(y)+'" x2="'+px(x)+'" y2="'+y0+'" stroke="#999" stroke-width="0.8" stroke-dasharray="3,3"/>');
+        parts.push('<line x1="'+px(x)+'" y1="'+py(y)+'" x2="'+x0+'" y2="'+py(y)+'" stroke="#999" stroke-width="0.8" stroke-dasharray="3,3"/>');
+        parts.push('<text x="'+(px(x))+'" y="'+(y0+14)+'" font-size="10" fill="#666" text-anchor="middle">'+ escapeHtml(Number.isInteger(x)?String(x):x.toFixed(1)) +'</text>');
+        parts.push('<text x="'+(x0-6)+'" y="'+(py(y)+3)+'" font-size="10" fill="#666" text-anchor="end">'+ escapeHtml(Number.isInteger(y)?String(y):y.toFixed(1)) +'</text>');
+      }
+      parts.push('<circle cx="'+px(x)+'" cy="'+py(y)+'" r="3" fill="'+color+'"/>');
+      if(p.label) parts.push('<text x="'+(px(x)+6)+'" y="'+(py(y)-6)+'" font-size="12" fill="'+color+'">'+escapeHtml(p.label)+'</text>');
+    });
+
+    parts.push('</svg>');
+    return parts.join("");
+  }
+
+  function buildGraphBoxHtml(graph, label){
+    var svg = renderGraphSvg(graph);
+    if(!svg) return "";
+    return '<div class="figure-box"><div class="figure-label">' + escapeHtml(label) + '</div>' + svg + '</div>';
+  }
+
+  /* ---------------- settings ---------------- */
+  var gearBtn = document.getElementById("gearBtn");
+  var settingsPanel = document.getElementById("settingsPanel");
+  var apiKeyInput = document.getElementById("apiKeyInput");
+  var saveKeyBtn = document.getElementById("saveKeyBtn");
+  var keyStatus = document.getElementById("keyStatus");
+
+  apiKeyInput.value = state.apiKey;
+  gearBtn.addEventListener("click", function(){
+    settingsPanel.classList.toggle("open");
+    renderModelLimits();
+  });
+  saveKeyBtn.addEventListener("click", function(){
+    state.apiKey = apiKeyInput.value.trim();
+    localStorage.setItem(LS_API, state.apiKey);
+    keyStatus.textContent = "保存しました";
+    setTimeout(function(){ keyStatus.textContent = ""; }, 2000);
+  });
+  if(!state.apiKey){ settingsPanel.classList.add("open"); }
+
+  function pacificDateStr(){
+    return new Intl.DateTimeFormat('en-CA', { timeZone:'America/Los_Angeles' }).format(new Date());
+  }
+  function getUsage(modelId){
+    var today = pacificDateStr();
+    var rec = state.rpdUsage[modelId];
+    if(!rec || rec.date !== today) return 0;
+    return rec.count;
+  }
+  function recordUsage(modelId){
+    var today = pacificDateStr();
+    var rec = state.rpdUsage[modelId];
+    if(!rec || rec.date !== today) rec = { date:today, count:0 };
+    rec.count += 1;
+    state.rpdUsage[modelId] = rec;
+    localStorage.setItem(LS_RPD_USAGE, JSON.stringify(state.rpdUsage));
+    renderModelLimits();
+  }
+  function getLimit(modelId){
+    var v = state.rpdLimits[modelId];
+    if(typeof v === "number" && v > 0) return v;
+    var m = MODEL_CHAIN.find(function(x){ return x.id === modelId; });
+    return m ? m.defaultRpd : 9999;
+  }
+  function renderModelLimits(){
+    var wrap = document.getElementById("modelLimits");
+    if(!wrap) return;
+    wrap.innerHTML = MODEL_CHAIN.map(function(m){
+      var used = getUsage(m.id);
+      var limit = getLimit(m.id);
+      return '<div class="model-limit-row">' +
+        '<span class="model-limit-label">' + escapeHtml(m.label) + '</span>' +
+        '<span class="model-limit-usage">今日 ' + used + ' / </span>' +
+        '<input type="number" min="1" class="model-limit-input" data-model="' + escapeAttr(m.id) + '" value="' + limit + '">' +
+        '</div>';
+    }).join("");
+  }
+  document.getElementById("modelLimits").addEventListener("change", function(ev){
+    var el = ev.target.closest("[data-model]");
+    if(!el) return;
+    var id = el.getAttribute("data-model");
+    var val = parseInt(el.value, 10);
+    var def = (MODEL_CHAIN.find(function(m){return m.id===id;}) || {}).defaultRpd || 20;
+    state.rpdLimits[id] = (val > 0) ? val : def;
+    localStorage.setItem(LS_RPD_LIMITS, JSON.stringify(state.rpdLimits));
+  });
+  document.getElementById("resetUsageBtn").addEventListener("click", function(){
+    state.rpdUsage = {};
+    localStorage.setItem(LS_RPD_USAGE, JSON.stringify(state.rpdUsage));
+    renderModelLimits();
+  });
+  renderModelLimits();
+
+  var figuresToggle = document.getElementById("figuresToggle");
+  figuresToggle.checked = state.figuresEnabled;
+  figuresToggle.addEventListener("change", function(){
+    state.figuresEnabled = figuresToggle.checked;
+    localStorage.setItem(LS_FIGURES_ENABLED, state.figuresEnabled ? "1" : "0");
+  });
+
+  var modelOverrideSelect = document.getElementById("modelOverrideSelect");
+  modelOverrideSelect.innerHTML = '<option value="auto">自動（上限に応じて自動切替）</option>' +
+    MODEL_CHAIN.map(function(m){
+      return '<option value="' + escapeAttr(m.id) + '">' + escapeHtml(m.label) + ' から使う</option>';
+    }).join("");
+  modelOverrideSelect.value = state.modelOverride;
+  modelOverrideSelect.addEventListener("change", function(){
+    state.modelOverride = modelOverrideSelect.value;
+    localStorage.setItem(LS_MODEL_OVERRIDE, state.modelOverride);
+  });
+
+  /* ---------------- camera ---------------- */
+  var cameraModal = document.getElementById("cameraModal");
+  var cameraVideo = document.getElementById("cameraVideo");
+  var captureCanvas = document.getElementById("captureCanvas");
+  var cameraHint = document.getElementById("cameraHint");
+  var cameraStream = null;
+  var cameraOnCapture = null;
+  var cameraContinuous = false;
+
+  function openCamera(onCapture, continuous){
+    cameraOnCapture = onCapture;
+    cameraContinuous = !!continuous;
+    cameraHint.textContent = "";
+    cameraModal.classList.add("show");
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      cameraHint.textContent = "このブラウザではカメラ機能を利用できません。";
+      return;
+    }
+    navigator.mediaDevices.getUserMedia({ video:{ facingMode:"environment" }, audio:false })
+      .then(function(stream){
+        cameraStream = stream;
+        cameraVideo.srcObject = stream;
+      })
+      .catch(function(err){
+        cameraHint.textContent = "カメラを起動できませんでした: " + (err && err.message ? err.message : err);
+      });
+  }
+  function closeCamera(){
+    if(cameraStream){
+      cameraStream.getTracks().forEach(function(t){ t.stop(); });
+      cameraStream = null;
+    }
+    cameraModal.classList.remove("show");
+  }
+  document.getElementById("cameraCaptureBtn").addEventListener("click", function(){
+    if(!cameraStream) return;
+    var w = cameraVideo.videoWidth, h = cameraVideo.videoHeight;
+    if(!w || !h) return;
+    captureCanvas.width = w; captureCanvas.height = h;
+    captureCanvas.getContext("2d").drawImage(cameraVideo, 0, 0, w, h);
+    captureCanvas.toBlob(function(blob){
+      if(!blob) return;
+      var file = new File([blob], "capture-" + Date.now() + ".jpg", { type:"image/jpeg" });
+      if(cameraOnCapture) cameraOnCapture(file);
+      if(!cameraContinuous) closeCamera();
+    }, "image/jpeg", 0.92);
+  });
+  document.getElementById("cameraCloseBtn").addEventListener("click", closeCamera);
+
+  /* ---------------- file slots ---------------- */
+  function wireSlot(prefix, key){
+    var input = document.getElementById("file"+prefix);
+    var pickBtn = document.getElementById("pick"+prefix+"Btn");
+    var cameraBtn = document.getElementById("camera"+prefix+"Btn");
+    var preview = document.getElementById("preview"+prefix);
+    var clearBtn = document.getElementById("clear"+prefix+"Btn");
+
+    function handleFile(f){
+      if(!f) return;
+      state[key] = f;
+      var reader = new FileReader();
+      reader.onload = function(){
+        preview.src = reader.result;
+        preview.style.display = "block";
+        pickBtn.style.display = "none";
+        if(cameraBtn) cameraBtn.style.display = "none";
+        clearBtn.style.display = "block";
+      };
+      reader.readAsDataURL(f);
+    }
+    pickBtn.addEventListener("click", function(){ input.click(); });
+    input.addEventListener("change", function(){ handleFile(input.files && input.files[0]); });
+    if(cameraBtn){
+      cameraBtn.addEventListener("click", function(){ openCamera(handleFile, false); });
+    }
+    clearBtn.addEventListener("click", function(){
+      state[key] = null;
+      input.value = "";
+      preview.style.display = "none";
+      pickBtn.style.display = "inline-block";
+      if(cameraBtn) cameraBtn.style.display = "inline-block";
+      clearBtn.style.display = "none";
+    });
+  }
+  wireSlot("Problem","pendingProblemFile");
+  wireSlot("Answer","pendingAnswerFile");
+
+  function resetUploadForm(){
+    ["Problem","Answer"].forEach(function(name){
+      state["pending"+name+"File"] = null;
+      document.getElementById("file"+name).value = "";
+      document.getElementById("preview"+name).style.display = "none";
+      document.getElementById("pick"+name+"Btn").style.display = "inline-block";
+      var camBtn = document.getElementById("camera"+name+"Btn");
+      if(camBtn) camBtn.style.display = "inline-block";
+      document.getElementById("clear"+name+"Btn").style.display = "none";
+    });
+  }
+
+  /* ---------------- Gemini ---------------- */
+  function fileToBase64(file){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(){
+        var result = reader.result;
+        var comma = result.indexOf(",");
+        var meta = result.slice(0, comma);
+        var data = result.slice(comma+1);
+        var m = meta.match(/data:(.*);base64/);
+        resolve({ mimeType: m ? m[1] : file.type, data: data });
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function graphSchema(){
+    return {
+      type:"object",
+      properties:{
+        present:{ type:"boolean" },
+        x_min:{ type:"number" }, x_max:{ type:"number" },
+        y_min:{ type:"number" }, y_max:{ type:"number" },
+        curves:{ type:"array", items:{ type:"object", properties:{
+          expr:{ type:"string" }, label:{ type:"string" }
+        }, required:["expr"] } },
+        points:{ type:"array", items:{ type:"object", properties:{
+          x:{ type:"number" }, y:{ type:"number" }, label:{ type:"string" }, guides:{ type:"boolean" }
+        }, required:["x","y"] } },
+        segments:{ type:"array", items:{ type:"object", properties:{
+          x1:{ type:"number" }, y1:{ type:"number" }, x2:{ type:"number" }, y2:{ type:"number" }, label:{ type:"string" }, dashed:{ type:"boolean" }
+        }, required:["x1","y1","x2","y2"] } },
+        shade:{ type:"array", items:{ type:"object", properties:{
+          upper_expr:{ type:"string" }, lower_expr:{ type:"string" }, x1:{ type:"number" }, x2:{ type:"number" }
+        }, required:["upper_expr","lower_expr","x1","x2"] } }
+      },
+      required:["present"]
+    };
+  }
+
+  function entrySchema(includeGraph){
+    var props = {
+      problem_number:{ type:"string" },
+      unit:{ type:"string" },
+      problem_text:{ type:"string" },
+      figure_svg:{ type:"string" },
+      approach:{ type:"string" },
+      answer_text:{ type:"string" },
+      final_answer:{ type:"string" }
+    };
+    if(includeGraph !== false){ props.graph = graphSchema(); }
+    return {
+      type:"object",
+      properties: props,
+      required:["problem_text","answer_text"]
+    };
+  }
+
+  function isRateLimitError(err){
+    var msg = (err && err.message) || "";
+    return /429|RESOURCE_EXHAUSTED|quota/i.test(msg);
+  }
+  function isSchemaError(err){
+    var msg = (err && err.message) || "";
+    return /Gemini APIエラー \(400\)/.test(msg) || /INVALID_ARGUMENT/i.test(msg) ||
+      /MAX_TOKENS/.test(msg) || /JSON形式ではありませんでした/.test(msg) || /空の応答/.test(msg);
+  }
+
+  /* Gemini occasionally forgets to double-escape a backslash before r/t/f/b in LaTeX
+     commands (\right, \tan, \frac, \binom ...) inside its JSON output. JSON.parse then
+     silently turns that into a real control character (CR/TAB/FF/BS) instead of erroring,
+     corrupting the text. These characters never appear legitimately in our content, so it's
+     safe to convert them back into the backslash+letter form they were meant to be. */
+  function repairStrayEscapes(str){
+    return str
+      .replace(/\r/g, "\\r")
+      .replace(/\t/g, "\\t")
+      .replace(/\f/g, "\\f")
+      .replace(/\x08/g, "\\b");
+  }
+  function deepRepairEscapes(val){
+    if(typeof val === "string") return repairStrayEscapes(val);
+    if(Array.isArray(val)) return val.map(deepRepairEscapes);
+    if(val && typeof val === "object"){
+      var out = {};
+      Object.keys(val).forEach(function(k){ out[k] = deepRepairEscapes(val[k]); });
+      return out;
+    }
+    return val;
+  }
+
+  function callGeminiOnce(modelId, parts, schema){
+    var url = "https://generativelanguage.googleapis.com/v1beta/models/" + modelId + ":generateContent?key=" + encodeURIComponent(state.apiKey);
+    return fetch(url, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        contents:[{ parts: parts }],
+        generationConfig:{ responseMimeType:"application/json", responseSchema: schema }
+      })
+    }).catch(function(networkErr){
+      var detail = (networkErr && networkErr.message) ? networkErr.message : String(networkErr);
+      throw new Error("Geminiへの通信に失敗しました（" + detail + "）。Wi-Fi/モバイル通信の切り替え、プライベートリレーやVPN・ブラウザの追跡防止機能を一時的にオフにする、別のブラウザ（Safariなど）で開き直す、のいずれかを試してください。");
+    }).then(function(res){
+      if(!res.ok){
+        return res.text().then(function(t){
+          throw new Error("Gemini APIエラー (" + res.status + "): " + t.slice(0,300));
+        });
+      }
+      return res.json();
+    }).then(function(data){
+      var candidate = data && data.candidates && data.candidates[0];
+      var finishReason = candidate && candidate.finishReason;
+      var text = "";
+      try{
+        var textParts = (candidate.content.parts || []).filter(function(p){ return !p.thought; });
+        text = textParts.map(function(p){ return p.text || ""; }).join("");
+      }catch(e){ text = ""; }
+
+      if(!text.trim()){
+        if(finishReason === "MAX_TOKENS"){
+          throw new Error("Geminiの応答が長すぎて途中で切れました（MAX_TOKENS）。画像1枚あたりの問題数を減らすか、もう一度お試しください。");
+        }
+        throw new Error("Geminiから空の応答が返されました" + (finishReason ? "（finishReason: " + finishReason + "）" : "") + "。");
+      }
+
+      var cleaned = text.trim();
+      if(cleaned.indexOf("```") === 0){
+        cleaned = cleaned.replace(/^```[a-zA-Z]*\n?/, "").replace(/```\s*$/, "").trim();
+      }
+      try{
+        return deepRepairEscapes(JSON.parse(cleaned));
+      }catch(e){
+        var start = cleaned.indexOf("{");
+        var end = cleaned.lastIndexOf("}");
+        if(start !== -1 && end > start){
+          try{ return deepRepairEscapes(JSON.parse(cleaned.slice(start, end+1))); }catch(e2){ /* fall through */ }
+        }
+        var hint = (finishReason === "MAX_TOKENS") ? "（応答が途中で切れた可能性があります）" : "";
+        throw new Error("Geminiの応答がJSON形式ではありませんでした" + hint + "。先頭: " + cleaned.slice(0,150));
+      }
+    });
+  }
+
+  function chooseStartIdx(){
+    if(state.modelOverride && state.modelOverride !== "auto"){
+      var forcedIdx = MODEL_CHAIN.findIndex(function(m){ return m.id === state.modelOverride; });
+      if(forcedIdx !== -1) return forcedIdx;
+    }
+    for(var i=0;i<MODEL_CHAIN.length;i++){
+      if(getUsage(MODEL_CHAIN[i].id) < getLimit(MODEL_CHAIN[i].id)) return i;
+    }
+    return MODEL_CHAIN.length - 1;
+  }
+
+  function callGeminiWithFallback(parts, onStatus){
+    if(!state.apiKey){
+      return Promise.reject(new Error("APIキーが未設定です。右上の⚙アイコンから設定してください。"));
+    }
+    var startIdx = chooseStartIdx();
+    function attempt(idx, includeGraph){
+      if(idx >= MODEL_CHAIN.length) return Promise.reject(new Error("すべてのモデルで送信に失敗しました。時間をおいて再試行してください。"));
+      var model = MODEL_CHAIN[idx];
+      var schema = { type:"object", properties:{ entries:{ type:"array", items: entrySchema(includeGraph) } }, required:["entries"] };
+      if(onStatus) onStatus(model.label + " に送信中…" + (includeGraph===false ? "（図なしモード）" : ""));
+      return callGeminiOnce(model.id, parts, schema).then(function(result){
+        recordUsage(model.id);
+        return { result: result, modelUsed: model };
+      }).catch(function(err){
+        if(isRateLimitError(err) && idx + 1 < MODEL_CHAIN.length){
+          if(onStatus) onStatus(model.label + " の上限に達したため " + MODEL_CHAIN[idx+1].label + " に切り替えます…");
+          return attempt(idx+1, includeGraph);
+        }
+        if(isSchemaError(err) && includeGraph !== false){
+          if(onStatus) onStatus("図の項目が原因でエラーになった可能性があるため、図なしで再試行します…");
+          return attempt(idx, false);
+        }
+        throw err;
+      });
+    }
+    return attempt(startIdx, state.figuresEnabled !== false);
+  }
+
+  function buildPrompt(hasSeparateAnswer){
+    var lines = [
+      "あなたは数学の問題集をデジタル化するアシスタントです。添付された画像から、問題文と解答・解説を正確に判別して抽出してください。",
+      hasSeparateAnswer
+        ? "画像は2枚あります。1枚目が問題のページ、2枚目が別冊の解答のページです。問題番号を手がかりに対応する解答を突き合わせてください。"
+        : "画像は1枚です。問題と解答が同じページに写っている前提で読み取ってください。",
+      "1枚の画像に複数の問題が写っている場合は、entries配列の複数要素として分けて出力してください（通常は1問のことが多いです）。",
+      "数式は必ずLaTeX形式で出力してください。文中の数式は $...$ 、独立した数式（display）は $$...$$ で囲んでください。",
+      "problem_text と answer_text は長い文章を1行に詰め込まず、必ず改行を入れて読みやすく整形してください。(1)(2)のような小問がある場合や、解法のステップが変わるところ、場合分けが変わるところでは改行し、まとまりが大きく変わるときは空行を入れてください。",
+      "解説（answer_text）の中に図形（三角形・円・座標平面上のグラフなど）や表が描かれている場合は省略せず、その内容（頂点・辺の長さ・角度・座標軸・曲線の概形・表の値など）を言葉で説明として書き加えてください。"
+    ];
+    if(state.figuresEnabled){
+      lines = lines.concat([
+        "図やグラフの再現には2つの方法があります。座標平面上の関数のグラフ・面積・接線・座標で表せる点や図形の場合は、必ず graph の構造化データとして出力してください。これは自分でSVGを書くのではなく、以下の項目を埋める形式です（問題・解説のどちらにあった図でもgraphにまとめてください）。",
+        "・present: 図がある場合は true、無ければ false。",
+        "・x_min, x_max, y_min, y_max: 表示する座標範囲（図に写っている範囲や、目盛りが読み取れる範囲に合わせてください）。",
+        "・curves: 関数のグラフの配列。expr は 'x^2-x' や '2*x-1' や 'sqrt(x)' のようにJavaScriptの式として計算できる形式で書いてください（掛け算の*は省略しない）。label はグラフの近くに表示するラベル（例: 'y=x'）。円が必要な場合は上下2本の曲線（例: 'sqrt(9-(x-2)^2)+1' と '-sqrt(9-(x-2)^2)+1'）として表現してください。",
+        "・shade: 2つの関数（upper_expr, lower_expr）とx1〜x2の範囲で挟まれた面積（斜線・着色部分）がある場合に指定してください。",
+        "・points: 特徴的な点（交点、頂点、問題文中のP・Q・Oなど）。x, y, label を指定し、軸に補助線と目盛り値を表示したい点は guides:true にしてください。",
+        "・segments: 2点を結ぶ線分（接線や垂線など）。dashed:true で点線になります。",
+        "図が座標系で表しにくい単純な図形（座標が与えられていない三角形など）の場合のみ、figure_svg にSVGコード（<svg viewBox=\"0 0 400 300\" ...>...</svg>のような断片、線は細く装飾は最小限）を書いてください。graphを使う場合はfigure_svgは空文字のままにしてください。",
+        "図がない場合や再現が難しい複雑な図の場合は、present を false にする（またはSVGを空文字のままにする）だけで構いません。無理に不正確な図を作らないでください。"
+      ]);
+    } else {
+      lines.push("図やグラフそのものの再現（描画）は不要です。graph・figure_svg は使わず、内容は上記の通りanswer_text中の言葉による説明だけで表現してください。");
+    }
+    lines = lines.concat([
+      "approach には、その問題を解くための方針・着眼点（チャート式でいう「指針」）を1〜3文程度で書いてください。解答・解説から読み取れる範囲で構いません。",
+      "unit（単元名）はページ内に記載があれば抽出し、なければ空文字にしてください。",
+      "problem_number は原文にある番号（例: 問1、例題12）があればそのまま使い、なければ空文字にしてください。",
+      "final_answer には解答の中の最終的な答えだけを、LaTeXを使って短く抜き出してください。"
+    ]);
+    return lines.join("\n");
+  }
+
+  function appendEntriesFromResult(result){
+    var now = Date.now();
+    (result.entries || []).forEach(function(e, i){
+      state.entries.unshift({
+        id: now + "-" + i + "-" + Math.random().toString(36).slice(2),
+        problem_number: e.problem_number || "",
+        unit: e.unit || "",
+        problem_text: e.problem_text || "",
+        figure_svg: e.figure_svg || "",
+        graph: (e.graph && e.graph.present) ? e.graph : {present:false},
+        approach: e.approach || "",
+        answer_text: e.answer_text || "",
+        final_answer: e.final_answer || "",
+        hasAnswer: !!(e.answer_text && e.answer_text.trim()),
+        tags: [],
+        created_at: now
+      });
+    });
+    saveEntries();
+    renderEntries();
+  }
+
+  /* ---------------- single analyze ---------------- */
+  var analyzeBtn = document.getElementById("analyzeBtn");
+  var errorBox = document.getElementById("errorBox");
+  var loadingOverlay = document.getElementById("loadingOverlay");
+  var loadingText = document.getElementById("loadingText");
+
+  function setLoading(on, text){
+    loadingOverlay.classList.toggle("show", on);
+    if(text) loadingText.textContent = text;
+    else if(on) loadingText.textContent = "Geminiに送信中…";
+    analyzeBtn.disabled = on;
+  }
+  function showError(msg){
+    errorBox.style.display = "block";
+    errorBox.textContent = msg;
+  }
+  function clearError(){ errorBox.style.display = "none"; errorBox.textContent = ""; }
+
+  analyzeBtn.addEventListener("click", function(){
+    clearError();
+    if(!state.pendingProblemFile){ showError("問題の写真を選択してください。"); return; }
+    var hasAnswerImg = !!state.pendingAnswerFile;
+    setLoading(true);
+    var parts = [{ text: buildPrompt(hasAnswerImg) }];
+    fileToBase64(state.pendingProblemFile).then(function(p1){
+      parts.push({ inline_data:{ mime_type:p1.mimeType, data:p1.data } });
+      if(hasAnswerImg){
+        return fileToBase64(state.pendingAnswerFile).then(function(p2){
+          parts.push({ inline_data:{ mime_type:p2.mimeType, data:p2.data } });
+        });
+      }
+    }).then(function(){
+      return callGeminiWithFallback(parts, function(s){ setLoading(true, s); });
+    }).then(function(res){
+      appendEntriesFromResult(res.result);
+      resetUploadForm();
+    }).catch(function(err){
+      showError(err.message || String(err));
+    }).finally(function(){
+      setLoading(false);
+    });
+  });
+
+  function analyzeAnswerForEntry(entryId, file){
+    var entry = state.entries.find(function(e){ return e.id === entryId; });
+    if(!entry) return;
+    clearError();
+    setLoading(true, "解答を解析中…");
+    var prompt = [
+      "次の問題に対応する解答・解説が写った画像です。内容を抽出してください。",
+      "数式は必ずLaTeX形式（インライン $...$ 、display $$...$$）で出力してください。",
+      "answer_text は長い文章を1行に詰め込まず、解法のステップごとに改行を入れて読みやすく整形してください。",
+      "解説の中に図形や座標平面上のグラフ、表がある場合は省略せず、その内容を言葉で説明として書き加えてください。",
+      "座標平面上の関数のグラフ・面積・接線などがある場合は、graph の構造化データ（present, x_min/x_max/y_min/y_max, curves[{expr,label}], shade[{upper_expr,lower_expr,x1,x2}], points[{x,y,label,guides}], segments[{x1,y1,x2,y2,label,dashed}]）として再現してください。exprは 'x^2-x' のようにJavaScriptの式として計算できる形式（掛け算の*は省略しない）で書いてください。",
+      "座標系で表しにくい単純な図形の場合のみ figure_svg にSVGコード（<svg viewBox=\"0 0 400 300\" ...>...</svg>のような断片、線は細く装飾は最小限）を書いてください。graphを使う場合はfigure_svgは空文字のままにしてください。無い場合や再現が難しい場合はどちらも空のままで構いません。",
+      "approach には解答から読み取れる方針・着眼点を1〜3文で書いてください。",
+      "問題文:",
+      entry.problem_text,
+      "",
+      "出力は entries配列に1件だけ入れてください（problem_text は空文字のままで構いません）。"
+    ].join("\n");
+    var parts = [{ text: prompt }];
+    fileToBase64(file).then(function(img){
+      parts.push({ inline_data:{ mime_type:img.mimeType, data:img.data } });
+      return callGeminiWithFallback(parts, function(s){ setLoading(true, s); });
+    }).then(function(res){
+      var first = (res.result.entries || [])[0];
+      if(first){
+        entry.answer_text = first.answer_text || entry.answer_text;
+        entry.approach = first.approach || entry.approach;
+        entry.figure_svg = first.figure_svg || entry.figure_svg;
+        if(first.graph && first.graph.present) entry.graph = first.graph;
+        entry.final_answer = first.final_answer || entry.final_answer;
+        entry.hasAnswer = !!(entry.answer_text && entry.answer_text.trim());
+        saveEntries();
+        renderEntries();
+      }
+    }).catch(function(err){
+      showError(err.message || String(err));
+    }).finally(function(){
+      setLoading(false);
+    });
+  }
+
+  /* ---------------- bulk ---------------- */
+  var bulkGrid = document.getElementById("bulkGrid");
+  var bulkAnalyzeBtn = document.getElementById("bulkAnalyzeBtn");
+  var bulkStatusEl = document.getElementById("bulkStatus");
+
+  function setBulkStatus(text){ bulkStatusEl.textContent = text || ""; }
+
+  function addToBulkQueue(file){
+    var reader = new FileReader();
+    reader.onload = function(){
+      state.bulkQueue.push({ id:"b"+Date.now()+Math.random().toString(36).slice(2), file:file, thumb:reader.result });
+      renderBulkQueue();
+    };
+    reader.readAsDataURL(file);
+  }
+  function renderBulkQueue(){
+    bulkGrid.innerHTML = state.bulkQueue.map(function(item){
+      return '<div class="bulk-thumb"><img src="' + item.thumb + '">' +
+        '<button type="button" class="remove-btn" data-act="remove-bulk" data-id="' + escapeAttr(item.id) + '">✕</button></div>';
+    }).join("");
+    document.getElementById("bulkCount").textContent = state.bulkQueue.length;
+    bulkAnalyzeBtn.disabled = state.bulkProcessing || state.bulkQueue.length === 0;
+  }
+  bulkGrid.addEventListener("click", function(ev){
+    var el = ev.target.closest('[data-act="remove-bulk"]');
+    if(!el) return;
+    var id = el.getAttribute("data-id");
+    state.bulkQueue = state.bulkQueue.filter(function(x){ return x.id !== id; });
+    renderBulkQueue();
+  });
+
+  document.getElementById("bulkPickBtn").addEventListener("click", function(){
+    document.getElementById("bulkFileInput").click();
+  });
+  document.getElementById("bulkFileInput").addEventListener("change", function(ev){
+    Array.prototype.forEach.call(ev.target.files, function(f){ addToBulkQueue(f); });
+    ev.target.value = "";
+  });
+  document.getElementById("bulkCameraBtn").addEventListener("click", function(){
+    openCamera(function(file){ addToBulkQueue(file); }, true);
+  });
+
+  function cooldownWait(seconds){
+    return new Promise(function(resolve){
+      var remain = seconds;
+      setBulkStatus("RPM対策で " + remain + "秒待機中…（5枚ごとに自動で一時停止します）");
+      var timer = setInterval(function(){
+        remain--;
+        if(remain <= 0){
+          clearInterval(timer);
+          resolve();
+        } else {
+          setBulkStatus("RPM対策で " + remain + "秒待機中…（5枚ごとに自動で一時停止します）");
+        }
+      }, 1000);
+    });
+  }
+
+  async function processBulkQueue(){
+    if(state.bulkProcessing || !state.bulkQueue.length) return;
+    state.bulkProcessing = true;
+    renderBulkQueue();
+    var sinceCooldown = 0;
+    var failCount = 0;
+    var totalStart = state.bulkQueue.length;
+    while(state.bulkQueue.length){
+      var item = state.bulkQueue[0];
+      var remaining = state.bulkQueue.length;
+      setBulkStatus("解析中…（残り" + remaining + "/" + totalStart + "枚）");
+      try{
+        var img = await fileToBase64(item.file);
+        var parts = [{ text: buildPrompt(false) }, { inline_data:{ mime_type:img.mimeType, data:img.data } }];
+        var res = await callGeminiWithFallback(parts, function(s){ setBulkStatus(s); });
+        appendEntriesFromResult(res.result);
+        state.bulkQueue.shift();
+        renderBulkQueue();
+      }catch(err){
+        failCount++;
+        state.bulkQueue.shift();
+        renderBulkQueue();
+        setBulkStatus("1枚失敗しました: " + (err.message || err));
+      }
+      sinceCooldown++;
+      if(sinceCooldown >= 5 && state.bulkQueue.length > 0){
+        await cooldownWait(60);
+        sinceCooldown = 0;
+      }
+    }
+    state.bulkProcessing = false;
+    renderBulkQueue();
+    setBulkStatus(failCount ? (failCount + "枚の解析に失敗しました。もう一度お試しください。") : "完了しました。");
+  }
+  bulkAnalyzeBtn.addEventListener("click", function(){ processBulkQueue(); });
+
+  /* ---------------- render notebook ---------------- */
+  var entriesWrap = document.getElementById("entriesWrap");
+  var emptyState = document.getElementById("emptyState");
+
+  document.getElementById("searchInput").addEventListener("input", function(ev){
+    state.filterQuery = ev.target.value.trim();
+    renderEntries();
+  });
+  document.getElementById("sortSelect").addEventListener("change", function(ev){
+    state.sortMode = ev.target.value;
+    renderEntries();
+  });
+  document.getElementById("collapseAllBtn").addEventListener("click", function(){
+    var allCollapsed = state.entries.length > 0 && state.entries.every(function(e){ return state.collapsedIds.has(e.id); });
+    if(allCollapsed){ state.collapsedIds.clear(); }
+    else { state.entries.forEach(function(e){ state.collapsedIds.add(e.id); }); }
+    renderEntries();
+  });
+
+  function entryToMarkdown(e){
+    var head = "### " + (e.problem_number ? e.problem_number : "問題") + (e.unit ? "（" + e.unit + "）" : "");
+    var md = head + "\n\n" + e.problem_text;
+    if(e.approach){ md += "\n\n**指針**\n\n" + e.approach; }
+    md += "\n\n**解答・解説**\n\n" + e.answer_text;
+    if(e.final_answer){ md += "\n\n**答:** " + e.final_answer; }
+    if(e.tags && e.tags.length){ md += "\n\nタグ: " + e.tags.map(function(t){ return "#"+t; }).join(" "); }
+    return md;
+  }
+
+  function passesFilter(e){
+    var q = state.filterQuery.toLowerCase();
+    if(q){
+      var hay = [e.problem_text, e.answer_text, e.approach, e.unit, e.problem_number, (e.tags||[]).join(" ")].join(" ").toLowerCase();
+      if(hay.indexOf(q) === -1) return false;
+    }
+    if(state.filterTags.size){
+      var tags = e.tags || [];
+      if(!tags.some(function(t){ return state.filterTags.has(t); })) return false;
+    }
+    return true;
+  }
+  function sortEntries(list){
+    var mode = state.sortMode;
+    var arr = list.slice();
+    if(mode === "old"){ arr.reverse(); }
+    else if(mode === "unit"){ arr.sort(function(a,b){ return (a.unit||"").localeCompare(b.unit||"","ja"); }); }
+    else if(mode === "tag"){ arr.sort(function(a,b){ return ((a.tags||[]).join(",")).localeCompare((b.tags||[]).join(","),"ja"); }); }
+    return arr;
+  }
+  function renderTagFilterRow(){
+    var allTags = {};
+    state.entries.forEach(function(e){ (e.tags||[]).forEach(function(t){ allTags[t] = true; }); });
+    var tags = Object.keys(allTags).sort(function(a,b){ return a.localeCompare(b,"ja"); });
+    var row = document.getElementById("tagFilterRow");
+    if(!tags.length){ row.innerHTML = ""; return; }
+    row.innerHTML = tags.map(function(t){
+      var active = state.filterTags.has(t);
+      return '<button type="button" class="tag-chip' + (active?' active':'') + '" data-act="toggle-tag-filter" data-tag="' + escapeAttr(t) + '">' + escapeHtml(t) + '</button>';
+    }).join("");
+  }
+  function tagsChipsHtml(tags){
+    if(!tags || !tags.length) return "";
+    return '<div class="tags-row">' + tags.map(function(t){
+      return '<span class="tag-chip small">' + escapeHtml(t) + '</span>';
+    }).join("") + '</div>';
+  }
+  function buildDisplayCard(e, badgeLabel){
+    var approachHtml = e.approach
+      ? ('<div class="approach-box"><span class="approach-label">指針</span><div class="approach-body">' + multiline(e.approach) + '</div></div>')
+      : '';
+    var finalHtml = e.final_answer
+      ? ('<div class="final-answer"><span class="final-label">答</span>' + multiline(e.final_answer) + '</div>')
+      : '';
+    var figureHtml = buildGraphBoxHtml(e.graph, "図") || buildFigureBoxHtml(e.figure_svg, "図");
+    var answerSection = e.hasAnswer
+      ? ('<div class="answer-panel"><span class="ribbon">解答</span>' + approachHtml +
+         '<div class="answer-sub-label">解説</div><div class="answer-body">' + multiline(e.answer_text) + '</div>' + finalHtml + '</div>')
+      : ('<div class="no-answer">解答が未登録です　' +
+         '<button type="button" class="add-answer-btn" data-act="add-answer" data-id="' + escapeAttr(e.id) + '">写真から追加</button>' +
+         '<button type="button" class="add-answer-btn" data-act="add-answer-camera" data-id="' + escapeAttr(e.id) + '">📷 その場で撮影</button>' +
+         '<input type="file" accept="image/*" style="display:none;" data-role="answer-input" data-id="' + escapeAttr(e.id) + '">' +
+         '</div>');
+    return (
+      '<div class="entry-head" data-act="toggle-collapse" data-id="' + escapeAttr(e.id) + '" style="cursor:pointer;">' +
+        '<input type="checkbox" class="select-checkbox" data-act="toggle-select" data-id="' + escapeAttr(e.id) + '"' + (state.selectedIds.has(e.id) ? ' checked' : '') + ' title="PDF出力用に選択">' +
+        '<span class="badge">' + escapeHtml(badgeLabel) + '</span>' +
+        (e.unit ? '<span class="unit-tag">' + escapeHtml(e.unit) + '</span>' : '') +
+        '<div class="entry-actions">' +
+          '<button type="button" class="icon-btn" data-act="edit" data-id="' + escapeAttr(e.id) + '" title="編集">✎</button>' +
+          '<button type="button" class="icon-btn" data-act="copy" data-id="' + escapeAttr(e.id) + '" title="Markdownをコピー">⧉</button>' +
+          '<button type="button" class="icon-btn" data-act="delete" data-id="' + escapeAttr(e.id) + '" title="削除">✕</button>' +
+        '</div>' +
+      '</div>' +
+      tagsChipsHtml(e.tags) +
+      '<div class="problem-body">' + multiline(e.problem_text || "（問題文なし）") + '</div>' +
+      figureHtml +
+      answerSection +
+      '<div class="entry-meta">' + escapeHtml(new Date(e.created_at).toLocaleString("ja-JP")) + '</div>'
+    );
+  }
+  function buildEditCard(e){
+    return (
+      '<div class="edit-form">' +
+        '<label class="field-label">問題番号</label><input type="text" class="edit-input" data-field="problem_number" value="' + escapeAttr(e.problem_number) + '">' +
+        '<label class="field-label">単元</label><input type="text" class="edit-input" data-field="unit" value="' + escapeAttr(e.unit) + '">' +
+        '<label class="field-label">問題文</label><textarea class="edit-textarea" data-field="problem_text" rows="4">' + escapeHtml(e.problem_text) + '</textarea>' +
+        '<label class="field-label">図（SVGコード・空欄可。グラフの場合は表示されている図をそのまま使うため通常は空欄でOK）</label><textarea class="edit-textarea" data-field="figure_svg" rows="3" style="font-family:monospace;font-size:11px;">' + escapeHtml(e.figure_svg) + '</textarea>' +
+        '<label class="field-label">指針</label><textarea class="edit-textarea" data-field="approach" rows="2">' + escapeHtml(e.approach) + '</textarea>' +
+        '<label class="field-label">解説</label><textarea class="edit-textarea" data-field="answer_text" rows="4">' + escapeHtml(e.answer_text) + '</textarea>' +
+        '<label class="field-label">最終的な答え</label><input type="text" class="edit-input" data-field="final_answer" value="' + escapeAttr(e.final_answer) + '">' +
+        '<label class="field-label">タグ（カンマ区切り）</label><input type="text" class="edit-input" data-field="tags" value="' + escapeAttr((e.tags||[]).join(", ")) + '">' +
+        '<div class="edit-actions">' +
+          '<button type="button" class="pick-btn" data-act="save-edit" data-id="' + escapeAttr(e.id) + '">保存</button>' +
+          '<button type="button" class="pick-btn secondary" data-act="cancel-edit" data-id="' + escapeAttr(e.id) + '">キャンセル</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+  function buildCard(e, badgeLabel){
+    var article = document.createElement("article");
+    var isEditing = state.editingId === e.id;
+    var isCollapsed = state.collapsedIds.has(e.id) && !isEditing;
+    article.className = "entry-card" + (isCollapsed ? " collapsed" : "");
+    article.innerHTML = isEditing ? buildEditCard(e) : buildDisplayCard(e, badgeLabel);
+    return article;
+  }
+
+  function renderEntries(){
+    renderTagFilterRow();
+    var collapseAllBtn = document.getElementById("collapseAllBtn");
+    var allCollapsed = state.entries.length > 0 && state.entries.every(function(e){ return state.collapsedIds.has(e.id); });
+    collapseAllBtn.textContent = allCollapsed ? "すべて開く" : "すべて折りたたむ";
+
+    var visible = sortEntries(state.entries.filter(passesFilter));
+    entriesWrap.innerHTML = "";
+    emptyState.style.display = state.entries.length ? "none" : "block";
+
+    if(state.entries.length && !visible.length){
+      var noMatch = document.createElement("div");
+      noMatch.className = "empty-state";
+      noMatch.textContent = "条件に一致するノートがありません。";
+      entriesWrap.appendChild(noMatch);
+    }
+
+    visible.forEach(function(e, idx){
+      var badgeLabel = e.problem_number || ("問" + (idx+1));
+      entriesWrap.appendChild(buildCard(e, badgeLabel));
+    });
+
+    if(isKatexReady()){
+      renderMathInElement(entriesWrap, {
+        delimiters:[
+          {left:"$$", right:"$$", display:true},
+          {left:"$", right:"$", display:false},
+          {left:"\\(", right:"\\)", display:false},
+          {left:"\\[", right:"\\]", display:true}
+        ],
+        throwOnError:false
+      });
+    }
+    updatePdfControls();
+  }
+
+  var MATH_DELIMITERS = [
+    {left:"$$", right:"$$", display:true},
+    {left:"$", right:"$", display:false},
+    {left:"\\(", right:"\\)", display:false},
+    {left:"\\[", right:"\\]", display:true}
+  ];
+
+  function updatePdfControls(){
+    var pdfBtn = document.getElementById("pdfBtn");
+    var selectAllBtn = document.getElementById("selectAllBtn");
+    var n = state.selectedIds.size;
+    pdfBtn.textContent = n > 0 ? ("選択した" + n + "件をPDFにする") : ("全件をPDFにする（" + state.entries.length + "件）");
+    pdfBtn.disabled = state.entries.length === 0;
+    var visible = sortEntries(state.entries.filter(passesFilter));
+    var allSelected = visible.length > 0 && visible.every(function(e){ return state.selectedIds.has(e.id); });
+    selectAllBtn.textContent = allSelected ? "表示中の選択を解除" : "表示中をすべて選択";
+    selectAllBtn.disabled = visible.length === 0;
+  }
+
+  function getPdfEntries(){
+    if(state.selectedIds.size > 0){
+      return sortEntries(state.entries.filter(function(e){ return state.selectedIds.has(e.id); }));
+    }
+    return sortEntries(state.entries.slice());
+  }
+
+  function buildPrintCardHtml(e, badgeLabel){
+    var approachHtml = e.approach
+      ? ('<div class="approach-box"><span class="approach-label">指針</span><div class="approach-body">' + multiline(e.approach) + '</div></div>')
+      : '';
+    var finalHtml = e.final_answer
+      ? ('<div class="final-answer"><span class="final-label">答</span>' + multiline(e.final_answer) + '</div>')
+      : '';
+    var figureHtml = buildGraphBoxHtml(e.graph, "図") || buildFigureBoxHtml(e.figure_svg, "図");
+    var answerSection = e.hasAnswer
+      ? ('<div class="answer-panel"><span class="ribbon">解答</span>' + approachHtml +
+         '<div class="answer-sub-label">解説</div><div class="answer-body">' + multiline(e.answer_text) + '</div>' + finalHtml + '</div>')
+      : '<div class="no-answer">（解答未登録）</div>';
+    return (
+      '<article class="entry-card">' +
+        '<div class="entry-head">' +
+          '<span class="badge">' + escapeHtml(badgeLabel) + '</span>' +
+          (e.unit ? '<span class="unit-tag">' + escapeHtml(e.unit) + '</span>' : '') +
+        '</div>' +
+        tagsChipsHtml(e.tags) +
+        '<div class="problem-body">' + multiline(e.problem_text || "（問題文なし）") + '</div>' +
+        figureHtml +
+        answerSection +
+      '</article>'
+    );
+  }
+
+  function buildPrintDocument(entries){
+    var dateStr = new Date().toLocaleDateString("ja-JP");
+    var header = '<div class="print-title-block">' +
+        '<div class="print-title">スキャン式ノート</div>' +
+        '<div class="print-subtitle">作成日: ' + escapeHtml(dateStr) + '　全' + entries.length + '件</div>' +
+      '</div>';
+    var cards = entries.map(function(e, idx){
+      var badgeLabel = e.problem_number || ("問" + (idx+1));
+      return buildPrintCardHtml(e, badgeLabel);
+    }).join("");
+    return header + cards;
+  }
+
+  function exportPdf(){
+    var entries = getPdfEntries();
+    if(!entries.length){ alert("PDFにするノートがありません。"); return; }
+    var printArea = document.getElementById("printArea");
+    printArea.innerHTML = buildPrintDocument(entries);
+    if(isKatexReady()){
+      renderMathInElement(printArea, { delimiters: MATH_DELIMITERS, throwOnError:false });
+    }
+    window.print();
+  }
+  window.addEventListener("afterprint", function(){
+    document.getElementById("printArea").innerHTML = "";
+  });
+
+  document.getElementById("pdfBtn").addEventListener("click", exportPdf);
+  document.getElementById("selectAllBtn").addEventListener("click", function(){
+    var visible = sortEntries(state.entries.filter(passesFilter));
+    var allSelected = visible.length > 0 && visible.every(function(e){ return state.selectedIds.has(e.id); });
+    visible.forEach(function(e){
+      if(allSelected) state.selectedIds.delete(e.id); else state.selectedIds.add(e.id);
+    });
+    renderEntries();
+  });
+
+  entriesWrap.addEventListener("click", function(ev){
+    var el = ev.target.closest("[data-act]");
+    if(!el) return;
+    var act = el.getAttribute("data-act");
+    var id = el.getAttribute("data-id");
+    if(act === "toggle-collapse"){
+      if(state.collapsedIds.has(id)) state.collapsedIds.delete(id); else state.collapsedIds.add(id);
+      renderEntries();
+    } else if(act === "toggle-select"){
+      if(el.checked) state.selectedIds.add(id); else state.selectedIds.delete(id);
+      updatePdfControls();
+    } else if(act === "delete"){
+      if(confirm("この項目を削除しますか？")){
+        state.entries = state.entries.filter(function(x){ return x.id !== id; });
+        state.collapsedIds.delete(id);
+        state.selectedIds.delete(id);
+        saveEntries(); renderEntries();
+      }
+    } else if(act === "copy"){
+      var entry = state.entries.find(function(x){ return x.id === id; });
+      if(entry){
+        navigator.clipboard.writeText(entryToMarkdown(entry)).then(function(){
+          el.textContent = "✓";
+          setTimeout(function(){ el.textContent = "⧉"; }, 1200);
+        });
+      }
+    } else if(act === "edit"){
+      state.editingId = id; renderEntries();
+    } else if(act === "cancel-edit"){
+      state.editingId = null; renderEntries();
+    } else if(act === "save-edit"){
+      var entry2 = state.entries.find(function(x){ return x.id === id; });
+      var card = el.closest(".entry-card");
+      if(entry2 && card){
+        card.querySelectorAll("[data-field]").forEach(function(fld){
+          var field = fld.getAttribute("data-field");
+          var val = fld.value;
+          if(field === "tags"){
+            entry2.tags = val.split(",").map(function(s){ return s.trim(); }).filter(Boolean);
+          } else {
+            entry2[field] = val;
+          }
+        });
+        entry2.hasAnswer = !!(entry2.answer_text && entry2.answer_text.trim());
+        state.editingId = null;
+        saveEntries();
+        renderEntries();
+      }
+    } else if(act === "add-answer"){
+      var card2 = el.closest(".entry-card");
+      var inp = card2.querySelector('[data-role="answer-input"]');
+      inp.onchange = function(){ if(inp.files && inp.files[0]) analyzeAnswerForEntry(id, inp.files[0]); };
+      inp.click();
+    } else if(act === "add-answer-camera"){
+      openCamera(function(file){ analyzeAnswerForEntry(id, file); }, false);
+    } else if(act === "toggle-tag-filter"){
+      var tag = el.getAttribute("data-tag");
+      if(state.filterTags.has(tag)) state.filterTags.delete(tag); else state.filterTags.add(tag);
+      renderEntries();
+    }
+  });
+
+  document.getElementById("exportBtn").addEventListener("click", function(){
+    if(!state.entries.length){ alert("ノートが空です。"); return; }
+    var md = state.entries.slice().reverse().map(entryToMarkdown).join("\n\n---\n\n");
+    var blob = new Blob([md], { type:"text/markdown" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "mondai-note-" + new Date().toISOString().slice(0,10) + ".md";
+    a.click();
+  });
+
+  renderBulkQueue();
+  renderEntries();
+})();
+</script>
+</body>
+</html>
